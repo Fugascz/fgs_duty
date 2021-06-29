@@ -5,4 +5,4 @@
 # Installation
   1. Put this script to your resources
   2. Import SQL file to your database.
-  3. Add `ensure fgs-duty` to your server.cfg
+  3. Add `ensure fgs_duty` to your server.cfg
