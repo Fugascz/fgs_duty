@@ -50,25 +50,23 @@ Citizen.CreateThread(function ()
         Wait(timeToWait)
 
         for k,v in pairs(Config.Duty) do
-			for i=1, #v.Jobs, 1 do
-				if ESX.PlayerData.job.name == v.Jobs[i] then
-					local coords = GetEntityCoords(PlayerPedId())
-					local dist = #(coords - vector3(v.Pos.x, v.Pos.y, v.Pos.z))
-					if (v.Enable and dist < (Config.DrawDistance)) then
-						if not nearestCoords then
-							timeToWait = 0
-							nearestCoords = vector3(v.Pos.x, v.Pos.y, v.Pos.z)
-						end
-						DrawMarker(v.Marker.Type, v.Pos.x, v.Pos.y, v.Pos.z, 0.0, 0.0, 0.0, 0, 0.0, 0.0, v.Marker.Size.x, v.Marker.Size.y, v.Marker.Size.z, v.Marker.Color.r, v.Marker.Color.g, v.Marker.Color.b, 100, false, false, 2, true, false, false, false)
-						if dist < 1 then
-							DrawText3Ds(v.Pos.x, v.Pos.y, v.Pos.z + 0.75, '[E] ON/OFF DUTY')
-							if IsControlJustPressed(0, 38) then
-								TriggerServerEvent('fgs-duty:set')
-							end
-						end
-					end
-				end
-			end
+            if v.Jobs[ESX.PlayerData.job.name] then
+                local coords = GetEntityCoords(PlayerPedId())
+                local dist = #(coords - vector3(v.Pos.x, v.Pos.y, v.Pos.z))
+                if (v.Enable and dist < (Config.DrawDistance)) then
+                    if not nearestCoords then
+                        timeToWait = 0
+                        nearestCoords = vector3(v.Pos.x, v.Pos.y, v.Pos.z)
+                    end
+                    DrawMarker(v.Marker.Type, v.Pos.x, v.Pos.y, v.Pos.z, 0.0, 0.0, 0.0, 0, 0.0, 0.0, v.Marker.Size.x, v.Marker.Size.y, v.Marker.Size.z, v.Marker.Color.r, v.Marker.Color.g, v.Marker.Color.b, 100, false, false, 2, true, false, false, false)
+                    if dist < 1 then
+                        DrawText3Ds(v.Pos.x, v.Pos.y, v.Pos.z + 0.75, '[E] ON/OFF DUTY')
+                        if IsControlJustPressed(0, 38) then
+                            TriggerServerEvent('fgs-duty:set')
+                        end
+                    end
+                end
+            end
         end
     end
 end)
