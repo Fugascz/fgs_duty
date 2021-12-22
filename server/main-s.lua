@@ -1,38 +1,37 @@
 ESX = nil
-TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+TriggerEvent(Config.ESX.TriggerServer, function(obj) ESX = obj end)
 
-RegisterNetEvent('fgs-duty:set')
-AddEventHandler('fgs-duty:set', function(job)
-    local _source = source
-    local xPlayer = ESX.GetPlayerFromId(_source)
+RegisterNetEvent('fgs-duty:setDuty')
+AddEventHandler('fgs-duty:setDuty', function()
+    local _src = source
+    local xPlayer = ESX.GetPlayerFromId(_src)
+    if xPlayer then
+        local playerJob = xPlayer.job.name
+        local playerGrade = xPlayer.job.grade
 
-    local playerJob = xPlayer.job.name
-    local playerGrade = xPlayer.job.grade
+        local offDuty = string.format('off%s', playerJob)
+        local onDuty = string.gsub(playerJob, 'off', '')
 
-    local offDuty = string.format('off%s', playerJob)
-    local onDuty = string.gsub(playerJob, 'off', '')
-
-    if playerJob == 'police' or playerJob == 'sheriff' or playerJob == 'ambulance' then
-        xPlayer.setJob(offDuty, playerGrade)
-        TriggerClientEvent('mythic_notify:client:SendAlert', _source, { type = 'inform', text = 'Jsi mimo službu.'})
-
-        DiscordWebhook('**OFF DUTY**', string.format('Hráč: **%s (%s)** \n Odešel ze služby: **%s** - **%s**', GetPlayerName(_source), xPlayer.getIdentifier(), xPlayer.job.label, xPlayer.job.grade_label))
-    elseif playerJob == 'offpolice' or playerJob == 'offsheriff' or playerJob == 'offambulance' then
-        xPlayer.setJob(onDuty, playerGrade)
-        TriggerClientEvent('mythic_notify:client:SendAlert', _source, { type = 'inform', text = 'Jsi ve službě.'})
-       
-        DiscordWebhook('**ON DUTY**', string.format('Hráč: **%s (%s)** \n Přišel do služby: **%s** - **%s**', GetPlayerName(_source), xPlayer.getIdentifier(), xPlayer.job.label, xPlayer.job.grade_label))
+        if playerJob == 'off' .. offDuty then
+            xPlayer.setJob(onDuty, playerGrade)
+            TriggerClientEvent('mythic_notify:client:SendAlert', _src, { type = 'inform', text = Config.Text['youAreInDuty']})
+            DiscordWebhook('**ON DUTY**', string.format('%s: **%s (%s)** \n %s: **%s** - **%s**', Config.Text['player'], GetPlayerName(_src), xPlayer.getIdentifier(), Config.Text['cameToDuty'], xPlayer.job.label, xPlayer.job.grade_label))
+        elseif v.Jobs[onDuty] and playerJob == onDuty then
+            xPlayer.setJob(offDuty, playerGrade)
+            TriggerClientEvent('mythic_notify:client:SendAlert', _src, { type = 'inform', text = Config.Text['youAreOffDuty']})
+            DiscordWebhook('**OFF DUTY**', string.format('%s: **%s (%s)** \n Odešel ze služby: **%s** - **%s**', Config.Text['player'], GetPlayerName(_src), xPlayer.getIdentifier(), Config.Text['leftTheService'], xPlayer.job.label, xPlayer.job.grade_label))
+        end
     end
 end)
 
 function DiscordWebhook(title, msg)
     local connect = {
         {
-            ["color"] = 9699539,
+            ["color"] = Config.Webhook.Color,
             ["title"] = title,
             ["description"] = msg,
             ["footer"] = {
-                ["text"] = 'fgs_duty | ' .. os.date('%H:%M - %d. %m. %Y', os.time()),
+                ["text"] = 'fgs-duty | ' .. os.date('%H:%M - %d. %m. %Y', os.time()),
                 ["icon_url"] = Config.Webhook.Icon,
             },
         }
