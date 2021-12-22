@@ -23,19 +23,17 @@ AddEventHandler('esx:setJob', function(job)
 end)
 
 CreateThread(function()
-    local s = 0
     while true do
-        Wait(s)
+        Wait(0)
+			
+	local sleep = true
 
         for _, v in pairs(Config.Zones) do
             if v.Jobs[ESX.PlayerData.job.name] then
                 local coords = GetEntityCoords(PlayerPedId())
                 local dist = #(coords - v.Pos)
-                if dist > Config.DrawDistance or not v.Enable then
-                    s = 500
-                end
                 if v.Enable and dist <= Config.DrawDistance then
-                    s = 0
+                    sleep = false
                     DrawMarker(v.Marker.Type, v.Pos.x, v.Pos.y, v.Pos.z, 0.0, 0.0, 0.0, 0, 0.0, 0.0, v.Marker.Size.x, v.Marker.Size.y, v.Marker.Size.z, v.Marker.Color.r, v.Marker.Color.g, v.Marker.Color.b, v.Marker.Color.a, false, false, 2, true, false, false, false)
                     if dist < 1 then
                         DrawText3D(v.Pos.x, v.Pos.y, v.Pos.z + 0.75, '[E] ON/OFF DUTY')
@@ -44,9 +42,11 @@ CreateThread(function()
                         end
                     end
                 end
-            else
-                s = 500
             end
         end
+			
+	if sleep then
+		Wait(500)
+	end
     end
 end)
